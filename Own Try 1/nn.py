@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class NeuralNetwork(object):
 	def __init__(self, inputSize, hiddenLayers, outputSize):
@@ -14,23 +15,23 @@ class NeuralNetwork(object):
 		return 1 / (1 + np.exp(-s))
 
 	def sigmoidPrime(self, s):
-		return s / (1 - s)
+		return s * (1 - s)
 
 	def forward(self, x):
 		for i in range(len(self.weights)):
 			if i == 0:
 				self.zs[i] = self.sigmoid(np.dot(x, self.weights[i]))
 			else :
-				self.zs[i] = self.sigmoid(np.dot(self.weights[i - 1], self.weights[i]))
+				self.zs[i] = self.sigmoid(np.dot(self.zs[i - 1], self.weights[i]))
 		return self.zs[-1]
 
 	def backward(self, x, y, out):
 		for i in reversed(range(len(self.weights))):
 			if i == len(self.weights) - 1:
-
 				self.deltas[i] = (y - out) * self.sigmoidPrime(out)
 			else :
-				self.deltas[i] = np.dot(self.deltas[i + 1], self.weights[i + 1].T) * self.sigmoidPrime(self.zs[i + 1])
+				self.deltas[i] = np.dot(self.deltas[i + 1], self.weights[i + 1].T)
+				self.deltas[i] *= self.sigmoidPrime(self.zs[i])
 
 		for i in range(len(self.weights)):
 			if i == 0:
@@ -48,14 +49,14 @@ class NeuralNetwork(object):
 
 
 def f(x, y, z):
-	return 5 * x - 2 * y + z + 1
+	return 5 * x - 2 * y + z
 
 list_x = []
 list_y = []
 for i in range(20):
-	x = np.random.uniform(-10, 10)
-	y = np.random.uniform(-10, 10)
-	z = np.random.uniform(-10, 10)
+	x = np.random.uniform(1, 10)
+	y = np.random.uniform(1, 10)
+	z = np.random.uniform(1, 10)
 	list_x.append([x, y, z])
 	list_y.append([f(x, y, z)])
 
